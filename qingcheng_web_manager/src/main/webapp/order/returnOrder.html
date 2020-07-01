@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>returnOrder管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+
+</head>
+<body class="hold-transition">
+<div id="app">
+
+    <div class="content-header">
+        <h1>管理
+            <small>returnOrder管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>管理</el-breadcrumb-item>
+            <el-breadcrumb-item>returnOrder管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+            <i class="el-icon-s-unfold">退货订单列表</i>
+            <el-table :data="tableData" border style="width: 100%" ref="multipleTable" tooltip-effect="dark">
+                <el-table-column  type="selection" width="55"></el-table-column>
+                <el-table-column prop="id" label="服务单号" width="80"></el-table-column>
+                <el-table-column prop="orderId" label="申请时间" width="80"></el-table-column>
+                <el-table-column prop="applyTime" label="用户账号" width="80"></el-table-column>
+                <el-table-column prop="userId" label="退款金额" width="80"></el-table-column>
+                <el-table-column prop="userAccount" label="用户账号" width="80"></el-table-column>
+                <el-table-column prop="linkman" label="联系人" width="80"></el-table-column>
+                <el-table-column prop="linkmanMobile" label="申请状态" width="80"></el-table-column>
+                <el-table-column prop="type" label="处理时间" width="80"></el-table-column>
+
+                <!--<el-table-column prop="returnMoney" label="退款金额" width="80"></el-table-column>-->
+                <!--<el-table-column prop="isReturnFreight" label="是否退运费" width="80"></el-table-column>-->
+                <!--<el-table-column prop="status" label="申请状态" width="80"></el-table-column>-->
+                <!--<el-table-column prop="disposeTime" label="处理时间" width="80"></el-table-column>-->
+                <!--<el-table-column prop="returnCause" label="退货退款原因" width="80"></el-table-column>-->
+                <!--<el-table-column prop="evidence" label="凭证图片" width="80"></el-table-column>-->
+                <!--<el-table-column prop="description" label="问题描述" width="80"></el-table-column>-->
+                <!--<el-table-column prop="remark" label="处理备注" width="80"></el-table-column>-->
+                <!--<el-table-column prop="adminId" label="管理员id" width="80"></el-table-column>-->
+
+                <el-table-column
+                        label="操作">
+                    <template slot-scope="scope">
+                        <el-button @click="edit(scope.row.id)" size="mini" type="primary" size="small">修改</el-button>
+                        <el-button @click="dele(scope.row.id)" size="mini" type="danger" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @size-change="fetchData"
+                        @current-change="fetchData"
+                        :current-page.sync="currentPage"
+                        :page-sizes="[10, 20, 30, 40]"
+                        :page-size="size"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                tableData: [],
+                currentPage: 1,
+                total: 10,
+                size: 10,
+                searchMap: {},
+                pojo: {},
+                formVisible: false,
+                imageUrl: ''
+            }
+        },
+        created() {
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                axios.post(`/returnOrder/findPage.do?page=${this.currentPage}&size=${this.size}`, this.searchMap).then(response => {
+                    this.tableData = response.data.rows;
+                    this.total = response.data.total;
+                });
+            },
+        }
+    })
+</script>
+</html>

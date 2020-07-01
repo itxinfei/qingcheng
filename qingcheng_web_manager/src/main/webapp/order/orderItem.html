@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>orderItem管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- 上传图片框样式，不使用上传组件可以删除此样式 -->
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 150px;
+            height: 70px;
+            line-height: 150px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 70px;
+            display: block;
+        }
+        .marTop{
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+
+    <div class="content-header">
+        <h1>管理
+            <small>orderItem管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>管理</el-breadcrumb-item>
+            <el-breadcrumb-item>orderItem管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+
+            <i class="el-icon-s-grid">基本信息</i>
+            <el-table :data="tableDataInfo" border style="width: 100%" class="marTop">
+                <el-table-column prop="id" label="订单ID" width="180"></el-table-column>
+                <el-table-column prop="liushuiId" label="发货单流水号" width="270"></el-table-column>
+                <el-table-column prop="username" label="用户名" width="180"></el-table-column>
+                <el-table-column prop="payType" label="支付方式" width="80"></el-table-column>
+                <el-table-column prop="sourceType" label="订单来源" width="80"></el-table-column>
+                <el-table-column prop="orderType" label="订单类型" width="80"></el-table-column>
+                <el-table-column prop="wuliuId" label="物流单号" width="270"></el-table-column>
+                <el-table-column prop="confirmTime" label="自动确认收货时间" width="180"></el-table-column>
+                <el-table-column prop="huodongInfo" label="活动信息" width="180"></el-table-column>
+                <!--<el-table-column prop="price" label="单价" width="80"></el-table-column>-->
+                <!--<el-table-column prop="num" label="数量" width="80"></el-table-column>-->
+                <!--<el-table-column prop="money" label="总金额" width="80"></el-table-column>-->
+                <!--<el-table-column prop="payMoney" label="实付金额" width="80"></el-table-column>-->
+                <!--<el-table-column prop="weight" label="重量" width="80"></el-table-column>-->
+                <!--<el-table-column prop="postFee" label="运费" width="80"></el-table-column>-->
+                <!--<el-table-column prop="isReturn" label="是否退货" width="80"></el-table-column>-->
+            </el-table>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script src="/js/util.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                order:{},
+                orderItem:{},
+                tableDataInfo: [],      //基本信息数组
+                tableDataInfoList:{
+                    id:'',
+                    liushuiId:'未发货',
+                    username:'',
+                    payType:'1',
+                    sourceType:'1',
+                    orderType:'普通订单',
+                    wuliuId:'未发货',
+                    confirmTime:'15天',
+                    huodongInfo:'满100减10'
+                },   //基本信息集合
+                id:0,
+            }
+        },
+        created() {
+            this.id = getQueryString("id");
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                axios.get(`/order/findById.do?id=${this.id}`).then(response => {
+                    this.order = response.data.order;
+                    this.orderItem = response.data.orderItem;
+                    console.log(this.order);
+                    console.log(this.orderItem);
+                    //构建基本信息数组
+                    this.tableDataInfoList.id = this.order.id;
+                    this.tableDataInfoList.username = this.order.username;
+                    this.tableDataInfoList.sourceType = this.order.sourceType;
+                    this.tableDataInfoList.payType = this.order.payType;
+                    this.tableDataInfo.push(this.tableDataInfoList);
+                });
+            },
+        }
+    })
+</script>
+</html>

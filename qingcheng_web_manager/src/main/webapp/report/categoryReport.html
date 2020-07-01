@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>统计界面</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/util.js"></script>
+    <script src="../js/elementui.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/echarts.common.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-date-picker
+                v-model="dateRange"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="fetchData()"
+
+        >
+        </el-date-picker>
+        <div id="main" style="width: 700px;height: 400px;"></div>
+        <el-table :data="tableData" border style="width: 50%;">
+            <el-table-column prop="categoryId1" label="一级分类" width="200"></el-table-column>
+            <el-table-column prop="category1Name" label="分类名称" width="200"></el-table-column>
+            <el-table-column prop="num" label="数量" width="200"></el-table-column>
+            <el-table-column prop="money" label="销售额" width="200"></el-table-column>
+        </el-table>
+    </div>
+</body>
+
+    <script>
+        new Vue({
+            el:'#app',
+            data(){
+                return{
+                    tableData:[],
+                    dateRange:[],
+                    name:[],
+                    numArray:[],
+                    moneyArray:[]
+
+                }
+            },
+            created(){
+
+            },
+            methods:{
+                //抓取数据
+                fetchData(){
+                    let date1 = this.dateRange[0].Format("yyyy-MM-dd");
+                    let date2 = this.dateRange[1].Format("yyyy-MM-dd");
+
+                    let mycharts = echarts.init(document.getElementById("main"));
+
+                    axios.get(`/categoryReport/category1Count.do?date1=${date1}&date2=${date2}`).
+                        then(response=>{
+                            this.tableData = response.data;
+
+                            this.numArray = [];
+                            this.moneyArray = [];
+                        for (let i = 0; i < this.tableData.length; i++) {
+                            this.name.push(this.tableData[i].category1Name);
+                            this.numArray.push({value:this.tableData[i].num,name:this.tableData[i].category1Name});
+                            this.moneyArray.push({value:this.tableData[i].money,name:this.tableData[i].category1Name})
+                        }
+
+                        let options = {
+                            title:{
+                                text:'一定时间范围内销量和销售额的饼状图',
+                                x:'center',
+                                y:'bottom'
+                            },
+                            tooltip:{
+                                trigger:'item',
+                                formatter:'{a} </br>{b}:{c} {d}%'
+                            },
+                            legend:{
+                                orient:'vertical',
+                                left:'left',
+                                data:this.name
+                            },
+                            series:[{
+                                name:'销量',
+                                type:'pie',
+                                radius:'35%',
+                                center:['30%','50%'],
+                                data:this.numArray,
+                                itemStyle:{
+                                    emphasis:{
+                                        shadowBlur:10,
+                                        shadowOffsetX:0,
+                                        shadowColor:'rgb(0,0,0,0.5)'
+                                    }
+                                }
+                            },{
+                                name:'销售额',
+                                type:'pie',
+                                radius:'35%',
+                                center:['80%','50%'],
+                                data:this.moneyArray,
+                                itemStyle:{
+                                    emphasis:{
+                                        shadowBlur:10,
+                                        shadowOffsetX:0,
+                                        shadowColor:'rgb(0,0,0,0.5)'
+                                    }
+                                }
+                            }]
+                        };
+
+                        mycharts.setOption(options);
+                    });
+                }
+            }
+        })
+    </script>
+</html>

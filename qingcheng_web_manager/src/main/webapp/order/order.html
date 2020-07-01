@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>order管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- 上传图片框样式，不使用上传组件可以删除此样式 -->
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 150px;
+            height: 70px;
+            line-height: 150px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 70px;
+            display: block;
+        }
+
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+
+    <div class="content-header">
+        <h1>管理
+            <small>order管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>管理</el-breadcrumb-item>
+            <el-breadcrumb-item>order管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <!--查询表单-->
+                <el-form :inline="true">
+                    <!--
+                        单编号/商品货号
+                        收货人姓名/手机号码
+                        提交时间：
+                        1、在线支付、0 货到付款
+                        订单来源：1:web，2：app，3：微信公众号，4：微信小程序  5 H5手机页面
+                        订单状态：0待付款 1代发货 2已发货 3已完成 4已关闭
+                    -->
+                    <el-form-item label="订单创建时间">
+                        <el-input v-model="searchMap.createTime" placeholder="订单创建时间" class="filter-item"></el-input>
+                    </el-form-item>
+                    <el-form-item label="收货人">
+                        <el-input v-model="searchMap.receiverContact" placeholder="收货人" class="filter-item"></el-input>
+                    </el-form-item>
+                    <el-form-item label="收货人手机">
+                        <el-input v-model="searchMap.receiverMobile" placeholder="收货人手机" class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-button class="dalfBut" @click="fetchData()">查询</el-button>
+                    <el-button type="primary" class="butT" @click="formVisible=true;pojo={}">新增</el-button>
+                    <el-button type="success" @click="queryWaitingOrder()">未发货订单</el-button>
+                    <el-button type="success" @click="queryAlreadyOrder()">已发货订单</el-button>
+                </el-form>
+            </div>
+
+            <el-table :data="tableData" border style="width: 100%">
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="id" label="订单编号" width="180"></el-table-column>
+                <el-table-column prop="createTime" label="提交时间" width="180"></el-table-column>
+                <el-table-column prop="username" label="用户名称" width="180"></el-table-column>
+                <el-table-column prop="totalMoney" label="金额合计" width="80"></el-table-column>
+                <el-table-column label="支付方式" width="80">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.payType=='1'">在线支付</span>
+                        <span v-if="scope.row.payType=='0'">货到付款</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sourceType" label="订单来源" width="80">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.sourceType=='1'">web</span>
+                        <span v-if="scope.row.sourceType=='2'">app</span>
+                        <span v-if="scope.row.sourceType=='3'">微信公众号</span>
+                        <span v-if="scope.row.sourceType=='4'">微信小程序</span>
+                        <span v-if="scope.row.sourceType=='5'">H5手机页面</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="订单状态" width="80">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.orderStatus=='0'">待付款</span>
+                        <span v-if="scope.row.orderStatus=='1'">待发货</span>
+                        <span v-if="scope.row.orderStatus=='2'">已发货</span>
+                        <span v-if="scope.row.orderStatus=='3'">已完成</span>
+                        <span v-if="scope.row.orderStatus=='4'">已关闭</span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        label="操作">
+                    <template slot-scope="scope">
+                        <el-button @click="edit(scope.row.id)" size="mini" type="primary" size="small">修改</el-button>
+                        <el-button @click="dele(scope.row.id)" size="mini" type="danger" size="small">删除</el-button>
+                        <el-button @click="findById(scope.row.id)" size="mini" type="info" size="small" plain>查看详情</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @size-change="fetchData"
+                        @current-change="fetchData"
+                        :current-page.sync="currentPage"
+                        :page-sizes="[10, 20, 30, 40]"
+                        :page-size="size"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                tableData: [],
+                currentPage: 1,
+                total: 10,
+                size: 10,
+                searchMap: {},
+                pojo: {},
+                formVisible: false,
+                imageUrl: ''
+            }
+        },
+        created() {
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                axios.post(`/order/findPage.do?page=${this.currentPage}&size=${this.size}`, this.searchMap).then(response => {
+                    this.tableData = response.data.rows;
+                    this.total = response.data.total;
+                });
+            },
+            save() {
+                // this.pojo.image= this.imageUrl; //如页面有图片上传功能放开注释
+                axios.post(`/order/${this.pojo.id == null ? 'add' : 'update'}.do`, this.pojo).then(response => {
+                    this.fetchData(); //刷新列表
+                    this.formVisible = false;//关闭窗口
+                });
+            },
+            edit(id) {
+                this.formVisible = true;// 打开窗口
+                // 调用查询
+                axios.get(`/order/findById.do?id=${id}`).then(response => {
+                    this.pojo = response.data;
+                    // this.imageUrl=this.pojo.image //显示图片  如页面有图片上传功能放开注释
+                })
+            },
+            dele(id) {
+                this.$confirm('确定要删除此记录吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.get(`/order/delete.do?id=${id}`).then(response => {
+                        this.fetchData(); //刷新列表
+                    })
+                })
+            },
+            //查看详情
+            findById(id){
+                window.location.href = "orderItem.html?id="+id;
+            },
+            //查找代发货的订单
+            queryWaitingOrder(){
+                window.location.href = "batchDeliveryOrder.html";
+            },
+            //查找已发货的订单
+            queryAlreadyOrder(){
+                this.searchMap.orderStatus = "2";
+                this.fetchData();
+            }
+
+        }
+    })
+</script>
+</html>
