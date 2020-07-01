@@ -1,37 +1,10 @@
-# qingcheng
-
 #### 介绍
-黑马青橙商城
+《青橙商城》是属于全品类B2C电商系统，分为网站前台和管理后台 。采用apache dubbo +ssm集成框架搭建 ，
+持久层框架采用现在流行的mybatis通用mapper，前端框架采用主流的vue.js和elementui 。在业务设计上，
+《青橙商城》的电商业务的真实性和完整性有质的飞跃，新增了购物车满减优惠计算、秒杀、评论、仓库物流、统计分析、后台订单相关业务功能开发，权限设置等功能。
+在技术上也融合了当前主流的开发技术（详见技术架构图）。
 
 #### 软件架构
 软件架构说明
 
 
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 码云特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5.  码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
